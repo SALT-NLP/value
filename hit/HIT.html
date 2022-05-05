@@ -1,0 +1,204 @@
+<!-- You must include this JavaScript file -->
+<script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<style>
+.collapsible {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: solid;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible:hover {
+  background-color: #555;
+}
+
+.content {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+  background-color: #f1f1f1;
+}
+
+.input_field {
+  color:#eb5f07;
+}
+
+mark {
+  background: #eb5f07;
+  color: white;
+}
+
+a {
+  color:#38A1F3;
+}
+</style>
+
+<button class="collapsible">Instructions</button>
+<div class="content">
+  <h2> The goal of this study </h2>
+  <p>Siri, Alexa and other language technologies often <a href='https://www.scientificamerican.com/article/speech-recognition-tech-is-yet-another-example-of-bias/'> have trouble</a> with the speech patterns of people from many underrepresented groups, including the Black community. In this project, we would like to help these technologies better recognize and appropriately respond to what is known as <a href='https://en.wikipedia.org/wiki/African-American_Vernacular_English'> African American Vernacular English (AAVE)</a>. If you are a native AAVE speaker, this is how you can help us:</p>
+  <ol>
+    <li>You can decide whether bits of <em>automatically-generated</em> (fake) AAVE text are <b>understandable</b> and whether it is possible that someone could say it, at least in theory. </li>
+    <li>You can help us "translate" sentences from SAE to AAVE.</li>
+  </ol>
+  <h2> What exactly is AAVE? </h2> 
+  <p>AAVE is the variety of English that is spoken, especially in more casual settings, by many working- and middle-class African Americans.</p>
+  <h2>SAE and AAVE pairs.</h2>
+  <ol>
+    <li><b class='input_field'>SAE:</b> She is always telling people she’s eight. <br> <b class='input_field'>AAVE:</b> She be telling people she eight.</li>
+    <li><b class='input_field'>SAE:</b> They aren’t going bad. They have been bad for a long time<br><b class='input_field'>AAVE:</b> They ain’t going bad. They <em>been</em> bad.</li>
+    <li><b class='input_field'>SAE:</b> They will have already grown out of that by then.<br><b class='input_field'>AAVE:</b> They a be done growed out that by then. </li>
+    <li><b class='input_field'>SAE:</b> Are you getting ready/about to eat?<br><b class='input_field'>AAVE:</b> Y'all finna eat?</li>
+    <li><b class='input_field'>SAE:</b> Those students are always working diligently to make money<br><b class='input_field'>AAVE:</b> Them students be steady trying to make a buck.</li>
+  </ol>
+  <hr>
+  <h2>Example 1</h2>
+  <div style='border-top:solid; border-left:solid; border-right:solid; border-bottom:solid;'>
+      <div style='margin:2%'>
+        <p><b>Sentence (1): </b>It isn't rain no cats and no dogs and couldn't nobody tell it could got</p>
+        <p><b>Sentence (2):</b>It didn't rain <a href='negative_concord' title='1'><mark>cats</mark></a> and dogs and <a href='negative_inversion' title='2'><mark>nobody</mark></a> <a href='None' title='3'><mark>could</mark></a>tell it could <a href='got' title='4'><mark>have</mark></a></p>
+      </div>
+  </div>
+  <br>
+  <p><b class='input_field'> Understandable:</b><br>We have highlighted certain portions of <b>Sentence (2)</b> that are different in <b>Sentence (1)</b>. Do the words <em>and</em> the order of the words in <b>Sentence (1)</b> look like something you could reasonably say in AAVE?</p>
+  <p><em>NO</em></p>
+  <p>If anything is wrong, please let us know which of the highlighted segments were changed in a way that doesn't make sense. <div style='font-size:12px'>If you hover over them, each segment will have a number ID. Simply list the IDs of any confusing segments here, separating each with a comma (e.g. "2, 3, 5"). If something else is confusing that isn't highlighted, add "OTHER" to the list. If nothing is confusing, leave this blank.</div></p>
+  <p><em>OTHER, 1, 4</em></p>
+  <p><b class='input_field'>Rephrasing:</b><br>If possible, please provide a revised or alternative rephrasing of <b>Sentence (2)</b> that would be understandable in the AAVE dialect.</p>
+  <p><em>It ain't rain cats and dogs and couldn't nobody tell it could have.</em></p>
+  <hr>
+  <h2>Example 2</h2>
+  <div style='border-top:solid; border-left:solid; border-right:solid; border-bottom:solid;'>
+      <div style='margin:2%'>
+        <p><b>Sentence (1): </b>I hope dey won’t be no leak after they finish</p>
+        <p><b>Sentence (2):</b> I hope <a href='dey/it' title='1'><mark>there</mark></a> won’t be <a href='None' title='2'><mark>a</mark></a><a href='negative_concord' title='3'><mark>leak</mark></a> after they finish</p>
+      </div>
+  </div>
+  <br>
+  <p><b class='input_field'> Understandable:</b><br>We have highlighted certain portions of <b>Sentence (2)</b> that are different in <b>Sentence (1)</b>. Do the words <em>and</em> the order of the words in <b>Sentence (1)</b> look like something you could reasonably say in AAVE?</p>
+  <p><em>YES</em></p>
+  <br>
+  <p><b class='input_field'>Rephrasing:</b><br>If possible, please provide a revised or alternative rephrasing of <b>Sentence (2)</b> that would be acceptible in the AAVE dialect. If none exists, write N/A.</p>
+  <p><em>I sure hope it don't be no leak after they finish.</em></p>
+</div>
+
+<div style='margin-left: 2%; margin-right: 2%; border-bottom:solid;'>
+  <div>
+    <h1> AAVE Understanding </h1>
+    <p> If you haven't already, please open and read the <b>Instructions</b> tab. Your goal is to decide whether bits of text sound fine.</p>
+  </div>
+</div>
+
+<div style='margin-left: 5%; margin-right: 5%; margin-top: 2%; margin-bottom:5%'>
+  <crowd-form answer-format="flatten-objects" onsubmit="return submit_form();">
+
+    <div style='border-top:solid; border-left:solid; border-right:solid; border-bottom:solid;'>
+      <div style='margin:2%'>
+        <p><b>Sentence (1): </b> ${aave}</p>
+        <p><b>Sentence (2):</b> ${sae_highlight}</p>
+      </div>
+    </div>
+    <br>
+    <div>
+      <div>
+        <p><b style="color:#9B5277"> Understanding:</b><br>We have highlighted certain portions of <b>Sentence (2)</b> that are different in <b>Sentence (1)</b>. Do the words <em>and</em> the order of the words in <b>Sentence (1)</b> look like something you could reasonably say in AAVE?<br><br>
+          <crowd-radio-button name='accept_yes' id='aggr_yes'></crowd-radio-button>Yes, <em>it makes sense</em> <br>
+          <crowd-radio-button name='accept_no' id='aggr_no'></crowd-radio-button>No, <em>it does not make sense</em>
+        </crowd-radio-group>
+        <br>
+        <br>
+        <p>If anything is confusing or strange, please let us know which of the highlighted segments were changed in a way that doesn't make sense. <div style='font-size:12px'>If you hover over them, each segment will have a number ID. Simply list the IDs of any confusing segments here, separating each with a comma (e.g. "2, 3, 5"). If something else is confusing that isn't highlighted, add "OTHER" to the list. If nothing is confusing, leave this blank.</div></p>
+        <crowd-input name="error_ids" id="error_ids"></crowd-input>
+      </div>
+      <br>
+      <div>
+          <p><b style="color:#5AA2A6">Social Context:</b> If someone said this in your community, would it be (1) not very cool, (5) a bit sensitive, (7) passing, or (10) cool?</p>
+          <crowd-radio-group>
+              <img src="https://images.emojiterra.com/twitter/v13.0/512px/1f620.png" alt="sad" style="width:50px;height:50px;"> 
+              1
+              <crowd-radio-button name='social_1' id='social_1'></crowd-radio-button>
+              2
+              <crowd-radio-button name='social_2' id='social_2'></crowd-radio-button>
+              3
+              <crowd-radio-button name='social_3' id='social_3'></crowd-radio-button>
+              4
+              <crowd-radio-button name='social_4' id='social_4'></crowd-radio-button>
+              <img src="https://emojis.wiki/emoji-pics/apple/neutral-face-apple.png" alt="sad" style="width:50px;height:50px;"> 
+              5
+              <crowd-radio-button name='social_5' id='social_5'></crowd-radio-button>
+              6
+              <crowd-radio-button name='social_6' id='social_6'></crowd-radio-button>
+              7
+              <crowd-radio-button name='social_7' id='social_7'></crowd-radio-button>
+              8
+              <crowd-radio-button name='social_8' id='social_8'></crowd-radio-button>
+              9
+              <crowd-radio-button name='social_9' id='social_9'></crowd-radio-button>
+              10
+              <crowd-radio-button name='social_10' id='social_10'></crowd-radio-button>
+
+              <img src="https://emojigraph.org/media/twitter/smiling-face-with-sunglasses_1f60e.png" alt="sad" style="width:50px;height:50px;">
+          </crowd-radio-group>
+      </div>
+      <br>
+      <div>
+        <b style="color:#78A56A">Rephrasing:</b><br>If possible, please provide a revised or alternative rephrasing of <b>Sentence (1)</b> that would be acceptible in the AAVE dialect. If no change is possible, leave this blank and check the box below. 
+        <crowd-input name="rephrased" id="rephrased" required></crowd-input>
+      </div>
+      <br>
+      <div>
+          <crowd-checkbox name="no_change", id='no_change'><b style="color:#BB271A">No Change:</b> Check this box if no change to Sentence (1) was possible.</crowd-checkbox>
+      </div>
+      <br><br>
+      <div>
+        <b>Voice:</b><br>Consider the best AAVE sentence: your Rephrase (or Sentence 1 if no Rephrase given). You might not imagine yourself saying something like this, but you might imagine someone (like your grandma) saying it. Please indicate who might say something like this. 
+        <p><b style="color:#634FA2">Age of Person Speaking:</b></p>
+        <crowd-checkbox name="voice_age_under_18", id='voice_age_under_18'> < 18</crowd-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+        <crowd-checkbox name="voice_age_18_24", id='voice_age_18_24'> 18-24</crowd-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <crowd-checkbox name="voice_age_25_34", id='voice_age_25_34'> 25-34</crowd-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <crowd-checkbox name="voice_age_35_44", id='voice_age_35_44'> 35-44</crowd-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <crowd-checkbox name="voice_age_45_54", id='voice_age_45_54'> 45-54</crowd-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <crowd-checkbox name="voice_age_55_64", id='voice_age_55_64'> 55-64</crowd-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <crowd-checkbox name="voice_age_above_64", id='voice_age_55_64'> > 64 </crowd-checkbox>
+        <br><br>
+        <!--<crowd-input name="voice" id="voice" required></crowd-input>-->
+
+        <p><b style="color:#634FA2">Relationship to Person Speaking:</b></p>
+        <crowd-checkbox name="voice_relative", id='voice_relative'>Relative</crowd-checkbox><br>
+        <crowd-checkbox name="voice_friend", id='voice_friend'>Friend</crowd-checkbox><br>
+        <crowd-checkbox name="voice_coworker", id='voice_coworker'>Co-Worker</crowd-checkbox><br>
+        <crowd-checkbox name="voice_celeb", id='voice_celeb'>Celebrity/Public Figure</crowd-checkbox><br>
+        <crowd-checkbox name="voice_community", id='voice_community'>Community at Large</crowd-checkbox><br>
+      </div>
+      <br><br>
+      <div>
+        <b>Comments:</b><br>If you have any other comments, please put them here.
+        <crowd-input name="comments" id="comments"></crowd-input>
+      </div>
+    </div>
+    <br>
+  </crowd-form>
+</div>
+<!-- Must be at the end of the document -->
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}
+</script>
