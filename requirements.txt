@@ -6,3 +6,6 @@ neuralcoref==4.0
 lemminflect==0.2.2
 spacy==2.1.0
 inflect==5.5.2
+torch==1.7.1
+transformers==4.16.2
+datasets==2.1.0
