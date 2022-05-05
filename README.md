@@ -28,34 +28,39 @@ python
 >>> quit()
 ```
 
-4. Download the datasets from the [GLUE benchmark](https://gluebenchmark.com/) where each task is a subdirectory of `data/GLUE`
+### Run Experiments
+
+1. Modify the `run_glue.sh` script accordingly. The script automatically downloads GLUE and runs the transformations, but if you would like to manually complete the transformation pipeline, see the next section **Manually Build VALUE variants (optional)**
+
+### Manually Build VALUE variants (optional)
+**Note 1**: optional (helpful for seeing the process step-by-step)
+
+**Note 2**: This can take a while to run. To create only a single task, replace the --all tag with the task-specific tag (e.g. --MNLI) in each of the following commands.
+
+1. Download the datasets from the [GLUE benchmark](https://gluebenchmark.com/) where each task is a subdirectory of `data/GLUE`
 
 ```
 python download_glue_data.py --data_dir "data/GLUE" --tasks all
 ```
 
-### Build VALUE variants
-
-**Note**: This can take a while to run. To create only a single task, replace the --all tag with the task-specific tag (e.g. --MNLI) in each of the following commands.
-
 Move to src (```cd src```) and complete the following:
 
-1. Build VALUE base variant with column for HTML tagging (to be used in MTurk validation)
+2. Build VALUE base variant with column for HTML tagging (to be used in MTurk validation)
 ```python
 python -m src.build_value --all --VALUE 'data/VALUE' --lexical_mapping 'resources/sae_aave_mapping_dict.pkl' --morphosyntax --html --dialect aave
 ```
 
-2. Build VALUE_no_morpho variant
+3. Build VALUE_no_morpho variant
 ```python
 python -m src.build_value --all --VALUE 'data/VALUE' --lexical_mapping 'resources/sae_aave_mapping_dict.pkl' --html --dialect aave
 ```
 
-3. Build VALUE_no_lex variant
+4. Build VALUE_no_lex variant
 ```python
 python -m src.build_value --all --VALUE 'data/VALUE' --morphosyntax --html --dialect aave
 ```
 
-4. Build the VALUE_style_transfer variant by cloning the [style-transfer-paraphrase](https://github.com/martiansideofthemoon/style-transfer-paraphrase) repo and running the following for each task dataframe
+5. Build the VALUE_style_transfer variant by cloning the [style-transfer-paraphrase](https://github.com/martiansideofthemoon/style-transfer-paraphrase) repo and running the following for each task dataframe
 ```python
 from style_paraphrase.inference_utils import GPT2Generator
 import pandas as pd
