@@ -33,9 +33,7 @@ python
 1. Modify the `run_glue.sh` script accordingly. The script automatically downloads GLUE and runs the transformations, but if you would like to manually complete the transformation pipeline, see the next section **Manually Build VALUE variants (optional)**
 
 ### Manually Build VALUE variants (optional)
-**Note 1**: optional (helpful for seeing the process step-by-step)
-
-**Note 2**: This can take a while to run. To create only a single task, replace the --all tag with the task-specific tag (e.g. --MNLI) in each of the following commands.
+**Note**: This can take a while to run. To create only a single task, replace the --all tag with the task-specific tag (e.g. --MNLI) in each of the following commands.
 
 1. Download the datasets from the [GLUE benchmark](https://gluebenchmark.com/) where each task is a subdirectory of `data/GLUE`
 
