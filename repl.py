@@ -13,9 +13,6 @@ if __name__ == "__main__":
 
     if args.transform == "aave_like":
         mapping = {}
-        if os.path.exists("./resources/sae_aave_mapping_dict.pkl"):
-            with open("./resources/sae_aave_mapping_dict.pkl", "rb") as infile:
-                mapping = pkl.load(infile)
         converter = AfricanAmericanVernacular(mapping, morphosyntax=True)
     else:
         print("Please select a dialect with a supported set of transformations!")
