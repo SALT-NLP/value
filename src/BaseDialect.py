@@ -27,8 +27,8 @@ class BaseDialect(object):
         self.modification_counter = Counter()
         self.lexical_swaps = lexical_swaps
 
+        neuralcoref.add_to_pipe(spacy.load("en_core_web_sm"))
         self.nlp = spacy.load("en_core_web_sm")
-        neuralcoref.add_to_pipe(self.nlp)
 
         self.OBJECTS = {"dobj", "iobj", "obj", "pobj", "obl", "attr"}
 

@@ -28,6 +28,12 @@ python
 >>> quit()
 ```
 
+### Example Transformation Usage
+
+Inside of `repl.py`, you'll find a minimal example using the VALUE transformations for a simple Read-Evaluate-Print-Loop.
+
+This can be run and used with `python repl.py --transform=aave_like`.
+
 ### Run Experiments
 
 1. Modify the `run_glue.sh` script accordingly. The script automatically downloads GLUE and runs the transformations, but if you would like to manually complete the transformation pipeline, see the next section **Manually Build VALUE variants (optional)**

@@ -3,7 +3,7 @@ from .BaseDialect import BaseDialect
 class AfricanAmericanVernacular(BaseDialect):
     def __init__(self, lexical_swaps={}, morphosyntax=True):
         super().__init__(lexical_swaps, morphosyntax)
-        self.dialect_name = "AAVE_dialect"
+        self.dialect_name = "AAVE Associated Transformations"
         self.surface_subs = [
             self.surface_contract,
             self.surface_dey_conj,
