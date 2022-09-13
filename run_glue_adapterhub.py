@@ -36,6 +36,7 @@ from transformers import (
     AdapterTrainer,
     AutoAdapterModel,
     AutoConfig,
+    AutoModelForSequenceClassification,
     AutoTokenizer,
     DataCollatorWithPadding,
     EvalPrediction,
@@ -451,30 +452,40 @@ def main():
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
     )
-    # We use the AutoAdapterModel class here for better adapter support.
-    model = AutoAdapterModel.from_pretrained(
-        model_args.model_name_or_path,
-        from_tf=bool(".ckpt" in model_args.model_name_or_path),
-        config=config,
-        cache_dir=model_args.cache_dir,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
-        ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
-    )
-    if not is_regression:
-        model.add_classification_head(
-            data_args.task_name or "glue",
-            num_labels=num_labels,
-            id2label={i: v for i, v in enumerate(label_list)}
-            if num_labels > 0
-            else None,
+    if not adapter_args.train_adapter:
+        model = AutoModelForSequenceClassification.from_pretrained(
+            model_args.model_name_or_path,
+            from_tf=bool(".ckpt" in model_args.model_name_or_path),
+            config=config,
+            cache_dir=model_args.cache_dir,
+            revision=model_args.model_revision,
+            use_auth_token=True if model_args.use_auth_token else None,
         )
     else:
-        model.add_classification_head(
-            data_args.task_name or "glue",
-            num_labels=num_labels,
-            id2label=None,
+        # We use the AutoAdapterModel class here for better adapter support.
+        model = AutoAdapterModel.from_pretrained(
+            model_args.model_name_or_path,
+            from_tf=bool(".ckpt" in model_args.model_name_or_path),
+            config=config,
+            cache_dir=model_args.cache_dir,
+            revision=model_args.model_revision,
+            use_auth_token=True if model_args.use_auth_token else None,
+            ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
         )
+        if not is_regression:
+            model.add_classification_head(
+                data_args.task_name or "glue",
+                num_labels=num_labels,
+                id2label={i: v for i, v in enumerate(label_list)}
+                if num_labels > 0
+                else None,
+            )
+        else:
+            model.add_classification_head(
+                data_args.task_name or "glue",
+                num_labels=num_labels,
+                id2label=None,
+            )
 
     # Setup adapters
     if adapter_args.train_adapter:
@@ -598,61 +609,65 @@ def main():
         truncation=True,
     )
 
-    if data_args.dialect == "aave":
-        if os.path.exists("./resources/sae_aave_mapping_dict.pkl"):
-            with open("./resources/sae_aave_mapping_dict.pkl", "rb") as infile:
-                mapping = pkl.load(infile)
-        dialect = AfricanAmericanVernacular(mapping, morphosyntax=True)
-    elif data_args.dialect == "indian":
-        mapping = {}
-        dialect = IndianDialect(mapping, morphosyntax=True)
-    else:
-        dialect = None
-
-    def preprocess_function_factory(
-        dialect, tokenizer, max_seq_length, padding, label_to_id
-    ):
-        def preprocess_function(examples):
-            # Tokenize the texts
+    def dialect_transform_factory(dialect_name):
+        def dialect_transform(examples):
+            dialect = None
+            if dialect_name == "aave":
+                if os.path.exists("./resources/sae_aave_mapping_dict.pkl"):
+                    with open("./resources/sae_aave_mapping_dict.pkl", "rb") as infile:
+                        mapping = pkl.load(infile)
+                dialect = AfricanAmericanVernacular(mapping, morphosyntax=True)
+            elif dialect_name == "indian":
+                mapping = {}
+                dialect = IndianDialect(mapping, morphosyntax=True)
             if dialect:
                 conversions1 = [
                     dialect.convert_sae_to_dialect(example)
                     for example in examples[sentence1_key]
                 ]
+                examples[sentence1_key] = conversions1
                 if sentence2_key is None:
-                    args = (conversions1,)
+                    return examples
                 else:
                     conversions2 = [
                         dialect.convert_sae_to_dialect(example)
                         for example in examples[sentence2_key]
                     ]
-                    args = (conversions1, conversions2)
+                    examples[sentence2_key] = conversions2
+                    return examples
             else:
-                args = (
-                    (examples[sentence1_key],)
-                    if sentence2_key is None
-                    else (examples[sentence1_key], examples[sentence2_key])
-                )
-            result = tokenizer(
-                *args, padding=padding, max_length=max_seq_length, truncation=True
-            )
+                return examples
 
-            # Map labels to IDs (not necessary for GLUE tasks)
-            if label_to_id is not None and "label" in examples:
-                result["label"] = [
-                    (label_to_id[l] if l != -1 else -1) for l in examples["label"]
-                ]
+        return dialect_transform
 
-            return result
+    dialect_transform = dialect_transform_factory(data_args.dialect)
 
-        return preprocess_function
+    def preprocess_function(examples):
+        # Tokenize the texts
+        args = (
+            (examples[sentence1_key],)
+            if sentence2_key is None
+            else (examples[sentence1_key], examples[sentence2_key])
+        )
+        result = tokenizer(
+            *args, padding=padding, max_length=max_seq_length, truncation=True
+        )
 
-    preprocess_function = preprocess_function_factory(
-        dialect, tokenizer, max_seq_length, padding, label_to_id
-    )
+        # Map labels to IDs (not necessary for GLUE tasks)
+        if label_to_id is not None and "label" in examples:
+            result["label"] = [
+                (label_to_id[l] if l != -1 else -1) for l in examples["label"]
+            ]
+        return result
 
     with training_args.main_process_first(desc="dataset map pre-processing"):
         raw_datasets = raw_datasets.map(
+            dialect_transform,
+            batched=True,
+            load_from_cache_file=not data_args.overwrite_cache,
+            num_proc=24,
+            desc="Transform Dataset Using Dialect Transformations",
+        ).map(
             preprocess_function,
             batched=True,
             load_from_cache_file=not data_args.overwrite_cache,
