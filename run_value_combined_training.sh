@@ -33,7 +33,8 @@ do
 	       --eval_steps 500 \
 	       --save_total_limit 1 \
 	       --load_best_model_at_end True \
-	       --hub_private_repo
+	       --hub_private_repo \
+	       --use_auth_token
 	
 	python run_glue_adapterhub.py \
 	       --model_name_or_path $MODEL \

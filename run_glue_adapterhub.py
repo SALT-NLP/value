@@ -667,13 +667,20 @@ def main():
         return result
 
     with training_args.main_process_first(desc="dataset map pre-processing"):
-        dialect_datasets = raw_datasets.map(
-            dialect_transform,
-            batched=True,
-            load_from_cache_file=not data_args.overwrite_cache,
-            num_proc=24,
-            desc="Transform Dataset Using Dialect Transformations",
-        )
+        if False:
+            dialect_datasets = raw_datasets.map(
+                dialect_transform,
+                batched=True,
+                load_from_cache_file=not data_args.overwrite_cache,
+                num_proc=24,
+                desc="Transform Dataset Using Dialect Transformations",
+            )
+        else:
+            dialect_datasets = load_dataset(
+                "SALT-NLP/" + data_args.task_name + "_VALUE",
+                cache_dir=cache_name,
+                use_auth_token=True if model_args.use_auth_token else None,
+            )
 
         if data_args.combine_sae:
             for split in dialect_datasets:
