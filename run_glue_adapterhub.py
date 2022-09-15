@@ -103,6 +103,21 @@ class DataTrainingArguments:
         metadata={"help": "the directory where VALUE datasets will be saved"},
     )
 
+    push_adapter_to_hub: bool = field(
+        default=False,
+        metadata={"help": "Whether to push the Adapter to HuggingFace ModelHub"},
+    )
+
+    adapter_org_id: Optional[str] = field(
+        default=None,
+        metadata={"help": "Organization to contain AdapterHub repo"},
+    )
+
+    adapter_repo_id: Optional[str] = field(
+        default=None,
+        metadata={"help": "the Hub Repo name for model to push"},
+    )
+
     combine_sae: bool = field(
         default=False,
         metadata={
@@ -525,6 +540,7 @@ def main():
             # load the language adapter from Hub
             lang_adapter_name = model.load_adapter(
                 adapter_args.load_lang_adapter,
+                source="hf",
                 config=lang_adapter_config,
                 load_as=adapter_args.language,
             )
@@ -675,12 +691,14 @@ def main():
                 num_proc=24,
                 desc="Transform Dataset Using Dialect Transformations",
             )
-        else:
+        elif data_args.dialect != None:
             dialect_datasets = load_dataset(
                 "SALT-NLP/" + data_args.task_name + "_VALUE",
                 cache_dir=cache_name,
                 use_auth_token=True if model_args.use_auth_token else None,
             )
+        else:
+            dialect_datasets = raw_datasets
 
         if data_args.combine_sae:
             for split in dialect_datasets:
@@ -887,6 +905,15 @@ def main():
 
     if training_args.push_to_hub:
         trainer.push_to_hub(**kwargs)
+    elif data_args.push_adapter_to_hub:
+        model.push_adapter_to_hub(data_args.adapter_repo_id,
+                                  data_args.task_name,
+                                  organization=data_args.adapter_org_id,
+                                  private=training_args.hub_private_repo,
+                                  use_auth_token=model_args.use_auth_token,
+                                  adapter_card_kwargs=kwargs,
+                                  datasets_tag="glue"
+        )
     else:
         trainer.create_model_card(**kwargs)
 
