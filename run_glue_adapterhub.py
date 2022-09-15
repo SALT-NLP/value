@@ -26,7 +26,7 @@ import pickle as pkl
 
 import datasets
 import numpy as np
-from datasets import load_dataset, load_metric
+from datasets import interleave_datasets, load_dataset, load_metric
 from src.Dialects import AfricanAmericanVernacular
 
 import transformers
@@ -54,7 +54,7 @@ from transformers.utils.versions import require_version
 
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
-check_min_version("4.17.0")
+check_min_version("4.21.3")
 
 require_version(
     "datasets>=1.8.0",
@@ -101,6 +101,13 @@ class DataTrainingArguments:
     dialect: Optional[str] = field(
         default=None,
         metadata={"help": "the directory where VALUE datasets will be saved"},
+    )
+
+    combine_sae: bool = field(
+        default=False,
+        metadata={
+            "help": "Combine Training Data from SAE and Selected Dialect Transform"
+        },
     )
 
     dataset_config_name: Optional[str] = field(
@@ -282,7 +289,6 @@ def main():
             training_args,
             adapter_args,
         ) = parser.parse_args_into_dataclasses()
-
     # Setup logging
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
@@ -661,13 +667,28 @@ def main():
         return result
 
     with training_args.main_process_first(desc="dataset map pre-processing"):
-        raw_datasets = raw_datasets.map(
+        dialect_datasets = raw_datasets.map(
             dialect_transform,
             batched=True,
             load_from_cache_file=not data_args.overwrite_cache,
             num_proc=24,
             desc="Transform Dataset Using Dialect Transformations",
-        ).map(
+        )
+
+        if data_args.combine_sae:
+            for split in dialect_datasets:
+                dialect = dialect_datasets[split]
+                sae = raw_datasets[split]
+                dialect_datasets[split] = interleave_datasets([dialect, sae])
+
+        # Push Dataset to HuggingFace
+        if False:
+            dialect_datasets.push_to_hub(
+                "SALT-NLP/" + data_args.task_name + "_VALUE",
+                private=True,
+            )
+
+        raw_datasets = dialect_datasets.map(
             preprocess_function,
             batched=True,
             load_from_cache_file=not data_args.overwrite_cache,
