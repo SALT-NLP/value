@@ -471,6 +471,13 @@ def main():
 
         return dialect_transform
 
+    def give_new_uuids(examples):
+        examples["id"] = [
+            uuid.uuid4().hex
+            for questions in examples["questions"]
+            for question in questions
+        ]
+
     if data_args.dialect:
         if data_args.load_dialect_from_hub:
             dialect_transform = dialect_transform_factory(data_args.dialect)
@@ -485,7 +492,7 @@ def main():
         else:
             dialect_datasets = load_dataset(
                 "SALT-NLP/coqa_VALUE",
-                cache_dir=cache_name,
+                cache_dir=model_args.cache_dir,
                 use_auth_token=True if model_args.use_auth_token else None,
             )
 
@@ -494,6 +501,12 @@ def main():
                 dialect = dialect_datasets[split]
                 sae = raw_datasets[split]
                 raw_datasets[split] = interleave_datasets([dialect, sae])
+            raw_datasets.map(
+                give_new_uuids,
+                batched=True,
+                load_from_cache_file=not data_args.overwrite_cache,
+                desc="Giving Each Example a unique id",
+            )
         else:
             raw_datasets = dialect_datasets
 

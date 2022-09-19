@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=$(nvidia-smi --query-gpu=memory.free,index --format=
 
 HF_ORG="SALT-NLP"
 
-for MODEL_NAME in bert-base-uncased roberta-base
+for MODEL_NAME in roberta-base bert-base-uncased
 do
     MODEL=$HF_ORG/${MODEL_NAME}-coqa-value-combined
     echo $MODEL
