@@ -6,7 +6,7 @@ for MODEL_NAME in bert-base-uncased roberta-base
 do
     for TASK_NAME in $TASKS
     do
-	ADAPTER_ADDRESS=AdapterHub/${MODEL_NAME}-pf-${TASK_NAME}
+	ADAPTER_ADDRESS=WillHeld/pfadapter-${MODEL_NAME}-${TASK_NAME}
 	echo $TASK_NAME
 	python run_glue_adapterhub.py \
 	       --model_name_or_path $MODEL_NAME \
