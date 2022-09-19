@@ -25,7 +25,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 import datasets
-from datasets import load_dataset, load_metric
+from datasets import interleave_datasets, load_dataset, load_metric
 
 import transformers
 from trainer_qa import QuestionAnsweringAdapterTrainer, QuestionAnsweringTrainer
@@ -48,7 +48,22 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
 from utils_qa import postprocess_qa_predictions
+
 import uuid
+import pickle as pkl
+
+# getting the name of the directory
+# where the this file is present.
+current = os.path.dirname(os.path.realpath(__file__))
+
+# Getting the parent directory name
+# where the current directory is present.
+parent = os.path.dirname(current)
+
+# adding the parent directory to
+# the sys.path.
+sys.path.append(parent)
+from src.Dialects import AfricanAmericanVernacular
 
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
@@ -118,6 +133,39 @@ class DataTrainingArguments:
         default=None,
         metadata={"help": "The name of the dataset to use (via the datasets library)."},
     )
+
+    dialect: Optional[str] = field(
+        default=None,
+        metadata={"help": "the directory where VALUE datasets will be saved"},
+    )
+
+    load_dialect_from_hub: bool = field(
+        default=False,
+        metadata={"help": "Whether to load the dialect dataset from Huggingface Hub"},
+    )
+
+    push_adapter_to_hub: bool = field(
+        default=False,
+        metadata={"help": "Whether to push the Adapter to HuggingFace ModelHub"},
+    )
+
+    adapter_org_id: Optional[str] = field(
+        default=None,
+        metadata={"help": "Organization to contain AdapterHub repo"},
+    )
+
+    adapter_repo_id: Optional[str] = field(
+        default=None,
+        metadata={"help": "the Hub Repo name for model to push"},
+    )
+
+    combine_sae: bool = field(
+        default=False,
+        metadata={
+            "help": "Combine Training Data from SAE and Selected Dialect Transform"
+        },
+    )
+
     dataset_config_name: Optional[str] = field(
         default=None,
         metadata={
@@ -402,6 +450,51 @@ def main():
             desc="Transform Dataset Using Dialect Transformations",
         )
         # raw_datasets.push_to_hub("WillHeld/coqa")
+
+    def dialect_transform_factory(dialect_name):
+        def dialect_transform(examples):
+            dialect = None
+            if dialect_name == "aave":
+                if os.path.exists("./resources/sae_aave_mapping_dict.pkl"):
+                    with open("./resources/sae_aave_mapping_dict.pkl", "rb") as infile:
+                        mapping = pkl.load(infile)
+                dialect = AfricanAmericanVernacular(mapping, morphosyntax=True)
+
+            if dialect:
+                converted_questions = [
+                    dialect.convert_sae_to_dialect(example)
+                    for example in examples["question"]
+                ]
+                examples["question"] = converted_questions
+
+            return examples
+
+        return dialect_transform
+
+    if data_args.dialect and not data_args.load_dialect_from_hub:
+        dialect_transform = dialect_transform_factory(data_args.dialect)
+        dialect_datasets = raw_datasets.map(
+            dialect_transform,
+            batched=True,
+            load_from_cache_file=not data_args.overwrite_cache,
+            num_proc=24,
+            desc="Transform Dataset Using Dialect Transformations",
+        )
+
+    elif data_args.dialect and data_args.load_dialect_from_hub:
+        dialect_transform = load_dataset(
+            "SALT-NLP/coqa_VALUE",
+            cache_dir=cache_name,
+            use_auth_token=True if model_args.use_auth_token else None,
+        )
+
+    if data_args.combine_sae:
+        for split in dialect_datasets:
+            dialect = dialect_datasets[split]
+            sae = raw_datasets[split]
+            raw_datasets[split] = interleave_datasets([dialect, sae])
+    else:
+        raw_datasets = dialect_datasets
 
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
@@ -858,6 +951,16 @@ def main():
 
     if training_args.push_to_hub:
         trainer.push_to_hub(**kwargs)
+    elif data_args.push_adapter_to_hub:
+        model.push_adapter_to_hub(
+            data_args.adapter_repo_id,
+            data_args.task_name,
+            organization=data_args.adapter_org_id,
+            private=training_args.hub_private_repo,
+            use_auth_token=model_args.use_auth_token,
+            adapter_card_kwargs=kwargs,
+            datasets_tag="coqa",
+        )
     else:
         trainer.create_model_card(**kwargs)
 
