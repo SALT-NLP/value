@@ -4,7 +4,7 @@ HF_ORG="SALT-NLP"
 
 for MODEL_NAME in roberta-base bert-base-uncased
 do
-    MODEL=$HF_ORG/${MODEL_NAME}-coqa-aave
+    MODEL=$HF_ORG/${MODEL_NAME}-coqa
     echo $MODEL
     python coqa_exp/run_coqa_adapterhub.py \
 	   --model_name_or_path $MODEL_NAME \
