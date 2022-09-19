@@ -471,30 +471,31 @@ def main():
 
         return dialect_transform
 
-    if data_args.dialect and not data_args.load_dialect_from_hub:
-        dialect_transform = dialect_transform_factory(data_args.dialect)
-        dialect_datasets = raw_datasets.map(
-            dialect_transform,
-            batched=True,
-            load_from_cache_file=not data_args.overwrite_cache,
-            num_proc=24,
-            desc="Transform Dataset Using Dialect Transformations",
-        )
+    if data_args.dialect:
+        if data_args.load_dialect_from_hub:
+            dialect_transform = dialect_transform_factory(data_args.dialect)
+            dialect_datasets = raw_datasets.map(
+                dialect_transform,
+                batched=True,
+                load_from_cache_file=not data_args.overwrite_cache,
+                num_proc=24,
+                desc="Transform Dataset Using Dialect Transformations",
+            )
 
-    elif data_args.dialect and data_args.load_dialect_from_hub:
-        dialect_transform = load_dataset(
-            "SALT-NLP/coqa_VALUE",
-            cache_dir=cache_name,
-            use_auth_token=True if model_args.use_auth_token else None,
-        )
+        else:
+            dialect_datasets = load_dataset(
+                "SALT-NLP/coqa_VALUE",
+                cache_dir=cache_name,
+                use_auth_token=True if model_args.use_auth_token else None,
+            )
 
-    if data_args.combine_sae:
-        for split in dialect_datasets:
-            dialect = dialect_datasets[split]
-            sae = raw_datasets[split]
-            raw_datasets[split] = interleave_datasets([dialect, sae])
-    else:
-        raw_datasets = dialect_datasets
+        if data_args.combine_sae:
+            for split in dialect_datasets:
+                dialect = dialect_datasets[split]
+                sae = raw_datasets[split]
+                raw_datasets[split] = interleave_datasets([dialect, sae])
+        else:
+            raw_datasets = dialect_datasets
 
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.

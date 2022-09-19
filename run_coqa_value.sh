@@ -26,7 +26,5 @@ do
 	   --load_best_model_at_end True \
 	   --hub_model_id $MODEL \
 	   --push_to_hub True \
-	   --use_auth_token \
-	   --hub_private_repo \
-	   --dialect="aave"
+	   --use_auth_token
 done
