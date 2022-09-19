@@ -472,11 +472,7 @@ def main():
         return dialect_transform
 
     def give_new_uuids(examples):
-        examples["id"] = [
-            uuid.uuid4().hex
-            for questions in examples["questions"]
-            for question in questions
-        ]
+        examples["id"] = [uuid.uuid4().hex for _ in examples["id"]]
 
     if data_args.dialect:
         if data_args.load_dialect_from_hub:
