@@ -27,6 +27,5 @@ do
 	   --hub_model_id $MODEL \
 	   --push_to_hub True \
 	   --hub_private_repo \
-	   --use_auth_token \
-	   --dialect "aave"
+	   --use_auth_token
 done
