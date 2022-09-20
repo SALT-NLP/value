@@ -7,12 +7,12 @@ for MODEL_NAME in bert-base-uncased roberta-base
 do
     for TASK_NAME in $TASKS
     do
-	MODEL=$HF_ORG/${MODEL_NAME}-${TASK_NAME}-combined-value
+	MODEL=$HF_ORG/${MODEL_NAME}-${TASK_NAME}-sae
 	echo $MODEL
 	python run_glue_adapterhub.py \
 	       --model_name_or_path $MODEL_NAME \
 	       --task_name $TASK_NAME \
-	       --output_dir ./results_train_combined/$MODEL_NAME/$TASK_NAME \
+	       --output_dir ./results_train_value/$MODEL_NAME/$TASK_NAME \
 	       --max_seq_length 128 \
 	       --per_device_train_batch_size 16 \
 	       --learning_rate 2e-5 \
@@ -23,7 +23,6 @@ do
 	       --do_train \
 	       --do_eval \
 	       --push_to_hub True \
-	       --combine_sae True \
 	       --dialect "aave" \
 	       --hub_model_id $MODEL \
 	       --evaluation_strategy "steps" \
