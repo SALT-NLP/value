@@ -1,6 +1,6 @@
 export CUDA_VISIBLE_DEVICES=$(nvidia-smi --query-gpu=memory.free,index --format=csv,nounits,noheader | sort -nr | head -1 | awk '{ print $NF }')
 
-HF_ORG="SALT-NLP"
+HF_ORG="WillHeld"
 
 for MODEL_NAME in roberta-base bert-base-uncased
 do
@@ -12,6 +12,8 @@ do
 	   --metric_for_best_model="eval_f1" \
 	   --output_dir ./results_train_combined/$MODEL_NAME/coqa \
 	   --max_seq_length 384 \
+	   --load_dialect_from_hub \
+	   --version_2_with_negative \
 	   --per_device_train_batch_size 16 \
 	   --learning_rate 2e-5 \
 	   --weight_decay 0.1 \
@@ -26,6 +28,5 @@ do
 	   --load_best_model_at_end True \
 	   --hub_model_id $MODEL \
 	   --push_to_hub True \
-	   --hub_private_repo \
 	   --use_auth_token
 done

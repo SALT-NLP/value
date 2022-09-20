@@ -417,8 +417,6 @@ def main():
         )
 
     def map_to_squad(examples):
-        for key in examples.keys():
-            print(key)
         examples["context"] = [
             story
             for i, story in enumerate(examples["story"])
@@ -429,16 +427,29 @@ def main():
             for questions in examples["questions"]
             for question in questions
         ]
-        del examples["story"]
-        examples["question"] = [
-            question for questions in examples["questions"] for question in questions
-        ]
+        question_prompts = []
+        for i, questions in enumerate(examples["questions"]):
+            answers = examples["answers"][i]["input_text"]
+            history = [f"q: {question} a: {answer}" for question, answer in zip(questions, answers)]
+            for j, question in enumerate(questions):
+                lookback = max(0, j-2)
+                prompt_init = history[lookback:j]
+                prompt_init.append(f"q: {question}")
+                question_prompts.append(" ".join(prompt_init))
+        examples["question"] = question_prompts
         del examples["questions"]
         formatted_answers = []
-        for answers in examples["answers"]:
-            for text, index in zip(answers["input_text"], answers["answer_start"]):
-                formatted_answers.append({"text": [text], "answer_start": [index]})
+        for i, answers in enumerate(examples["answers"]):
+            context = examples["story"][i]
+            for changed_text, start_index, end_index in zip(answers["input_text"], answers["answer_start"], answers["answer_end"]):
+                end_index = min(end_index, len(context))
+                text = context[start_index:end_index]
+                if not text:
+                    formatted_answers.append({"text": [], "answer_start": []})
+                else:
+                    formatted_answers.append({"text": [text], "answer_start": [start_index]})
         examples["answers"] = formatted_answers
+        del examples["story"]
         return examples
 
     if data_args.dataset_name == "coqa":
@@ -447,7 +458,7 @@ def main():
             batched=True,
             remove_columns=["source"],
             load_from_cache_file=not data_args.overwrite_cache,
-            desc="Transform Dataset Using Dialect Transformations",
+            desc="Format CoQA into a Squad-like format",
         )
         # raw_datasets.push_to_hub("WillHeld/coqa")
 
@@ -475,7 +486,7 @@ def main():
         examples["id"] = [uuid.uuid4().hex for _ in examples["id"]]
 
     if data_args.dialect:
-        if data_args.load_dialect_from_hub:
+        if not data_args.load_dialect_from_hub:
             dialect_transform = dialect_transform_factory(data_args.dialect)
             dialect_datasets = raw_datasets.map(
                 dialect_transform,

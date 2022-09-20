@@ -12,6 +12,8 @@ do
 	   --metric_for_best_model="eval_f1" \
 	   --output_dir ./results_train_combined/$MODEL_NAME/coqa \
 	   --max_seq_length 384 \
+	   --load_dialect_from_hub \
+	   --version_2_with_negative \
 	   --per_device_train_batch_size 16 \
 	   --learning_rate 2e-5 \
 	   --weight_decay 0.1 \
