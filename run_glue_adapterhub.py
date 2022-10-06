@@ -28,6 +28,7 @@ import datasets
 import numpy as np
 from datasets import interleave_datasets, load_dataset, load_metric
 from src.Dialects import AfricanAmericanVernacular
+from contrastive.models import Eraser
 
 import transformers
 import transformers.adapters.composition as ac
@@ -96,6 +97,11 @@ class DataTrainingArguments:
     dataset_name: Optional[str] = field(
         default=None,
         metadata={"help": "The name of the dataset to use (via the datasets library)."},
+    )
+
+    use_eraser: bool = field(
+        default=False,
+        metadata={"help": "Use Eraser rather than Adapter"},
     )
 
     dialect: Optional[str] = field(
@@ -532,18 +538,31 @@ def main():
         # optionally load a pre-trained language adapter
         if adapter_args.load_lang_adapter:
             # resolve the language adapter config
-            lang_adapter_config = AdapterConfig.load(
-                adapter_args.lang_adapter_config,
-                non_linearity=adapter_args.lang_adapter_non_linearity,
-                reduction_factor=adapter_args.lang_adapter_reduction_factor,
-            )
-            # load the language adapter from Hub
-            lang_adapter_name = model.load_adapter(
-                adapter_args.load_lang_adapter,
-                source="hf",
-                config=lang_adapter_config,
-                load_as=adapter_args.language,
-            )
+            if not data_args.use_eraser:
+                lang_adapter_config = AdapterConfig.load(
+                    adapter_args.lang_adapter_config,
+                    non_linearity=adapter_args.lang_adapter_non_linearity,
+                    reduction_factor=adapter_args.lang_adapter_reduction_factor,
+                )
+                # load the language adapter from Hub
+                lang_adapter_name = model.load_adapter(
+                    adapter_args.load_lang_adapter,
+                    source="hf",
+                    config=lang_adapter_config,
+                    load_as=adapter_args.language,
+                )
+            else:
+                print("Using Eraser")
+                # load the language adapter from Hub
+                first_layer_model = AutoAdapterModel.from_pretrained(
+                    f"./tada_train_layer0/{model_args.model_name_or_path}/checkpoint-4500"
+                )
+                source = dict(first_layer_model.base_model.named_parameters())
+                for name, param in model.base_model.named_parameters():
+                    if "layer.0" in name and "adapter" not in name:
+                        param.data.copy_(source[name].data)
+                model = model.cuda()
+                lang_adapter_name = None
         else:
             lang_adapter_name = None
         # Freeze all model weights except of those of this adapter
@@ -906,13 +925,14 @@ def main():
     if training_args.push_to_hub:
         trainer.push_to_hub(**kwargs)
     elif data_args.push_adapter_to_hub:
-        model.push_adapter_to_hub(data_args.adapter_repo_id,
-                                  data_args.task_name,
-                                  organization=data_args.adapter_org_id,
-                                  private=training_args.hub_private_repo,
-                                  use_auth_token=model_args.use_auth_token,
-                                  adapter_card_kwargs=kwargs,
-                                  datasets_tag="glue"
+        model.push_adapter_to_hub(
+            data_args.adapter_repo_id,
+            data_args.task_name,
+            organization=data_args.adapter_org_id,
+            private=training_args.hub_private_repo,
+            use_auth_token=model_args.use_auth_token,
+            adapter_card_kwargs=kwargs,
+            datasets_tag="glue",
         )
     else:
         trainer.create_model_card(**kwargs)
